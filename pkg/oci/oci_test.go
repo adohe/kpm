@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
 	"kcl-lang.io/kpm/pkg/settings"
 	"kcl-lang.io/kpm/pkg/utils"
 )
@@ -39,4 +40,15 @@ func TestLogin(t *testing.T) {
 
 	err := Login(hostName, userName, userPwd, &settings)
 	assert.Equal(t, err.Error(), "failed to login 'ghcr.io', please check registry, username and password is valid\nGet \"https://ghcr.io/v2/\": denied: denied\n")
+}
+
+func TestPull(t *testing.T) {
+	client, err := NewOciClient("ghcr.io", "kusionstack/opsrule", settings.GetSettings())
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	err = client.Pull("/Users/linkedin/.kcl/kpm/opsrule_0.0.9", "0.0.9")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 }

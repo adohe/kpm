@@ -202,15 +202,15 @@ func (dep *Dependency) IsFromLocal() bool {
 
 // FillDepInfo will fill registry information for a dependency.
 func (dep *Dependency) FillDepInfo() error {
-	/*if dep.Source.Oci != nil {
-		settings := settings.GetSettings()
+	if dep.Source.Oci != nil {
+		/*settings := settings.GetSettings()
 		if settings.ErrorEvent != nil {
 			return settings.ErrorEvent
 		}
 		dep.Source.Oci.Reg = settings.DefaultOciRegistry()
 		urlpath := utils.JoinPath(settings.DefaultOciRepo(), dep.Name)
-		dep.Source.Oci.Repo = urlpath
-	}*/
+		dep.Source.Oci.Repo = urlpath*/
+	}
 	return nil
 }
 
