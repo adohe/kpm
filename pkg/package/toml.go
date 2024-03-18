@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+
 	"kcl-lang.io/kpm/pkg/reporter"
 )
 
@@ -295,13 +296,20 @@ func (source *Source) UnmarshalModTOML(data interface{}) error {
 				return err
 			}
 			source.Local = &localPath
-		} else {
+		} else if _, ok := meta["git"]; ok {
 			git := Git{}
 			err := git.UnmarshalModTOML(data)
 			if err != nil {
 				return err
 			}
 			source.Git = &git
+		} else {
+			oci := Oci{}
+			err := oci.UnmarshalModTOML(data)
+			if err != nil {
+				return err
+			}
+			source.Oci = &oci
 		}
 	}
 
@@ -344,12 +352,20 @@ func (git *Git) UnmarshalModTOML(data interface{}) error {
 }
 
 func (oci *Oci) UnmarshalModTOML(data interface{}) error {
-	meta, ok := data.(string)
-	if !ok {
-		return fmt.Errorf("expected string, got %T", data)
-	}
+	tag, ok := data.(string)
+	if ok {
+		oci.Tag = tag
+	} else if meta, ok := data.(map[string]interface{}); ok {
+		if v, ok := meta["oci"].(string); ok {
+			oci.Reg = v
+		}
 
-	oci.Tag = meta
+		if v, ok := meta["tag"].(string); ok {
+			oci.Tag = v
+		}
+	} else {
+		return fmt.Errorf("unexpected data %T", data)
+	}
 
 	return nil
 }
