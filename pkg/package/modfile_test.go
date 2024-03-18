@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
 	"kcl-lang.io/kpm/pkg/opt"
 	"kcl-lang.io/kpm/pkg/runner"
 	"kcl-lang.io/kpm/pkg/utils"
@@ -169,7 +170,7 @@ func TestLoadModFile(t *testing.T) {
 	assert.Equal(t, modFile.Pkg.Version, "0.0.1")
 	assert.Equal(t, modFile.Pkg.Edition, "0.0.1")
 
-	assert.Equal(t, len(modFile.Dependencies.Deps), 2)
+	assert.Equal(t, len(modFile.Dependencies.Deps), 3)
 	assert.Equal(t, modFile.Dependencies.Deps["name"].Name, "name")
 	assert.Equal(t, modFile.Dependencies.Deps["name"].Source.Git.Url, "test_url")
 	assert.Equal(t, modFile.Dependencies.Deps["name"].Source.Git.Tag, "test_tag")

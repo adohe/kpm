@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	"oras.land/oras-go/v2/registry"
 
 	"kcl-lang.io/kpm/pkg/reporter"
 )
@@ -357,7 +358,12 @@ func (oci *Oci) UnmarshalModTOML(data interface{}) error {
 		oci.Tag = tag
 	} else if meta, ok := data.(map[string]interface{}); ok {
 		if v, ok := meta["oci"].(string); ok {
-			oci.Reg = v
+			ref, err := parseArtifactRef(v)
+			if err != nil {
+				return err
+			}
+			oci.Reg = ref.Registry
+			oci.Repo = ref.Repository
 		}
 
 		if v, ok := meta["tag"].(string); ok {
@@ -399,4 +405,16 @@ func (dep *Dependencies) UnmarshalLockTOML(data string) error {
 	}
 
 	return nil
+}
+
+func parseArtifactRef(ociURL string) (*registry.Reference, error) {
+	if !strings.HasPrefix(ociURL, "oci://") {
+		return nil, fmt.Errorf("OCI URL must be in format 'oci://<domain>/<org>/<repo>'")
+	}
+	url := strings.TrimPrefix(ociURL, "oci://")
+	ref, err := registry.ParseReference(url)
+	if err != nil {
+		return nil, fmt.Errorf("'%s' invalid URL format: %w", ociURL, err)
+	}
+	return &ref, nil
 }
