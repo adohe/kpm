@@ -141,7 +141,7 @@ func NewOciClient(regName, repoName string, settings *settings.Settings) (*OciCl
 // Pull will pull the oci artifacts from oci registry to local path.
 func (ociClient *OciClient) Pull(localPath, tag string) error {
 	// Create a file store
-	fs, err := file.New(localPath)
+	fs, err := file.NewWithFallbackLimit(localPath, 64*1024*1024)
 	if err != nil {
 		return reporter.NewErrorEvent(reporter.FailedCreateStorePath, err, "Failed to create store path ", localPath)
 	}
