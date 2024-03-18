@@ -9,6 +9,10 @@ import (
 
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/thoas/go-funk"
+	"oras.land/oras-go/pkg/auth"
+	dockerauth "oras.land/oras-go/pkg/auth/docker"
+	remoteauth "oras.land/oras-go/v2/registry/remote/auth"
+
 	"kcl-lang.io/kpm/pkg/constants"
 	"kcl-lang.io/kpm/pkg/opt"
 	pkg "kcl-lang.io/kpm/pkg/package"
@@ -16,9 +20,6 @@ import (
 	"kcl-lang.io/kpm/pkg/semver"
 	"kcl-lang.io/kpm/pkg/settings"
 	"kcl-lang.io/kpm/pkg/utils"
-	"oras.land/oras-go/pkg/auth"
-	dockerauth "oras.land/oras-go/pkg/auth/docker"
-	remoteauth "oras.land/oras-go/v2/registry/remote/auth"
 
 	"oras.land/oras-go/v2"
 	"oras.land/oras-go/v2/content/file"
@@ -147,7 +148,12 @@ func (ociClient *OciClient) Pull(localPath, tag string) error {
 	defer fs.Close()
 
 	// Copy from the remote repository to the file store
-	_, err = oras.Copy(*ociClient.ctx, ociClient.repo, tag, fs, tag, oras.DefaultCopyOptions)
+	customCopyOptions := oras.CopyOptions{
+		CopyGraphOptions: oras.CopyGraphOptions{
+			MaxMetadataBytes: 64 * 1024 * 1024, // 64 MiB
+		},
+	}
+	_, err = oras.Copy(*ociClient.ctx, ociClient.repo, tag, fs, tag, customCopyOptions)
 	if err != nil {
 		return reporter.NewErrorEvent(
 			reporter.FailedGetPkg,
